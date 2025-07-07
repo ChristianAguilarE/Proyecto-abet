@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#define LIMITE_CO2   1000.0   // ppm
+#define LIMITE_SO2     40.0   // µg/m³
+#define LIMITE_NO2     25.0   // µg/m³
+#define LIMITE_PM25    15.0   // µg/m³
+
 struct Zona
 {
     char nombre[50];
@@ -32,6 +37,9 @@ void modificarZona(struct Zona zona[], int contador);
 float predecir(float historico[30], int dias, float temperatura, float viento, float humedad);
 
 void verPredicciones(struct Zona zona[], int contador);
+void verDatosHistoricos(struct Zona zona[], int contador);
+void verAlertas(struct Zona zona[], int contador);
+void verRecomendaciones(struct Zona zona[], int contador);
 
 int main()
 {
@@ -87,10 +95,10 @@ int main()
 verPredicciones(zona, contador);
             break;
         case 3:
-            printf("Función ver datos aún no implementada.\n");
+            verDatosHistoricos(zona, contador);
             break;
         case 4:
-            printf("Función alertas aún no implementada.\n");
+             verAlertas(zona, contador);
             break;
         case 5:
             printf("Función recomendaciones aún no implementada.\n");
@@ -115,7 +123,7 @@ int menu()
     printf("0) Inicializar Zonas\n");
     printf("1) Gestionar Zonas\n");
     printf("2) Ver predicciones\n");
-    printf("3) Ver datos\n");
+    printf("3) Ver datos historicos\n");
     printf("4) Alertas\n");
     printf("5) Recomendaciones\n");
     printf("6) Salir\n");
@@ -207,14 +215,24 @@ void InicializarZonas(struct Zona zona[], int *contador)
     zona[4].humedad = 60.0;
 
     // Simulación de históricos para las 5 zonas iniciales
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 30; j++) {
-            zona[i].historicoCO2[j]  = zona[i].co2  * (0.9f + 0.02f * (j % 6));
-            zona[i].historicoSO2[j]  = zona[i].so2  * (0.9f + 0.01f * (j % 11));
-            zona[i].historicoNO2[j]  = zona[i].no2  * (0.9f + 0.015f * (j % 7));
-            zona[i].historicoPM25[j] = zona[i].pm25 * (0.85f + 0.03f * (j % 5));
-        }
+ for (int i = 0; i < 5; i++) {
+    float a = 0.1f, b = 0.5f, c = 0.4f, d = 0.8f;  // coeficientes fijos
+
+    for (int j = 0; j < 30; j++) {
+        float variacion = 1.0f + 0.05f * ((j % 5) - 2); // Variación de -10% a +10%
+
+        float co2  = zona[i].co2  * variacion;
+        float so2  = zona[i].so2  * variacion;
+        float no2  = zona[i].no2  * variacion;
+        float pm25 = zona[i].pm25 * variacion;
+
+        zona[i].historicoCO2[j]  = a * co2;
+        zona[i].historicoSO2[j]  = b * so2;
+        zona[i].historicoNO2[j]  = c * no2;
+        zona[i].historicoPM25[j] = d * pm25;
     }
+}
+
 
     *contador = 5;
     guardarZonas(zona, *contador);
@@ -244,7 +262,6 @@ int cargarZonas(struct Zona zona[])
         if (contador >= 100) break;
     }
     fclose(archivo);
-    // CAMBIO: Devuelve el número real de zonas cargadas
     return contador;
 }
 
@@ -266,28 +283,37 @@ void agregarZona(struct Zona zona[], int *contador)
     printf("Ingrese los niveles de contaminantes:\n");
     printf("CO2 (ppm): ");
     scanf("%f", &zona[*contador].co2);
-    printf("SO2 (µg/m³): ");
+    printf("SO2 (ug/m3): ");
     scanf("%f", &zona[*contador].so2);
-    printf("NO2 (µg/m³): ");
+    printf("NO2 (ug/m3): ");
     scanf("%f", &zona[*contador].no2);
-    printf("PM2.5 (µg/m³): ");
+    printf("PM2.5 (ug/m3): ");
     scanf("%f", &zona[*contador].pm25);
 
     printf("Ingrese las condiciones climáticas:\n");
-    printf("Temperatura (°C): ");
+    printf("Temperatura (C): ");
     scanf("%f", &zona[*contador].temperatura);
     printf("Viento (km/h): ");
     scanf("%f", &zona[*contador].viento);
     printf("Humedad (porcentaje): ");
     scanf("%f", &zona[*contador].humedad);
 
-    // Simulación de históricos para la nueva zona agregada
-    for (int j = 0; j < 30; j++) {
-        zona[*contador].historicoCO2[j]  = zona[*contador].co2  * (0.9f + 0.02f * (j % 6));
-        zona[*contador].historicoSO2[j]  = zona[*contador].so2  * (0.9f + 0.01f * (j % 11));
-        zona[*contador].historicoNO2[j]  = zona[*contador].no2  * (0.9f + 0.015f * (j % 7));
-        zona[*contador].historicoPM25[j] = zona[*contador].pm25 * (0.85f + 0.03f * (j % 5));
-    }
+  float a = 0.1f, b = 0.5f, c = 0.4f, d = 0.8f;  // Coeficientes fijos
+
+for (int j = 0; j < 30; j++) {
+    float variacion = 1.0f + 0.05f * ((j % 5) - 2); // Variación de -10% a +10%
+
+    float co2  = zona[*contador].co2  * variacion;
+    float so2  = zona[*contador].so2  * variacion;
+    float no2  = zona[*contador].no2  * variacion;
+    float pm25 = zona[*contador].pm25 * variacion;
+
+    zona[*contador].historicoCO2[j]  = a * co2;
+    zona[*contador].historicoSO2[j]  = b * so2;
+    zona[*contador].historicoNO2[j]  = c * no2;
+    zona[*contador].historicoPM25[j] = d * pm25;
+}
+
 
     (*contador)++;
     guardarZonas(zona, *contador);
@@ -356,7 +382,7 @@ void modificarZona(struct Zona zona[], int contador) {
     scanf("%f", &zona[i].pm25);
 
     printf("Nuevas condiciones climáticas:\n");
-    printf("Temperatura (°C) (actual: %.2f): ", zona[i].temperatura);
+    printf("Temperatura (C) (actual: %.2f): ", zona[i].temperatura);
     scanf("%f", &zona[i].temperatura);
     printf("Viento (km/h) (actual: %.2f): ", zona[i].viento);
     scanf("%f", &zona[i].viento);
@@ -422,4 +448,94 @@ float predecir(float historico[30], int dias, float temperatura, float viento, f
 
     return ajuste;
 }
+
+void verDatosHistoricos(struct Zona zona[], int contador){
+
+char buscar[50];
+int encontrado=0;
+printf("\n INGRESE EN EL NOMBRE DE LA ZONA PARA VER LOS DATOS HISTORICOS: ");
+scanf("%s", buscar);
+
+for (int i = 0; i < contador; i++)
+{
+    if (strcmp(zona[i].nombre, buscar) == 0)
+    {
+        encontrado = 1;
+        printf("\nZONA: %s\n", zona[i].nombre);
+        printf("Pais: %s\n", zona[i].pais);
+        printf("Ubicacion: %s\n", zona[i].ubicacion);
+
+        printf("\n--- Datos Históricos ---\n");
+        printf("******CO2 (ppm)*******: ");
+        for (int j = 0; j < 30; j++) {
+            printf("\nDia %d) %.2f ",j,zona[i].historicoCO2[j]);
+        }
+        printf("\n");
+
+        printf("*******SO2 (ug/m3)******: ");
+        for (int j = 0; j < 30; j++) {
+            printf("\nDia %d)%.2f ",j, zona[i].historicoSO2[j]);
+        }
+        printf("\n");
+
+        printf("*******NO2 (ug/m3)******: ");
+        for (int j = 0; j < 30; j++) {
+            printf("\nDia %d)%.2f ",j, zona[i].historicoNO2[j]);
+        }
+        printf("\n");
+
+        printf("********PM2.5 (ug/m3)******: ");
+        for (int j = 0; j < 30; j++) {
+            printf("\nDia %d)%.2f ",j, zona[i].historicoPM25[j]);
+        }
+        printf("\n");
+
+        return;
+    }
+   
+    if (!encontrado)
+    {
+        printf("Zona no encontrada.\n");
+    }
+    
+    
+}
+}
+
+void verAlertas(struct Zona zona[], int contador) {
+    for (int i = 0; i < contador; i++) {
+        printf("\nZona: %s\n", zona[i].nombre);
+
+        int alerta = 0;
+
+        if (zona[i].co2 > LIMITE_CO2) {
+            printf("   Alerta: Nivel de CO2 peligroso (%.2f ppm)\n", zona[i].co2);
+            alerta = 1;
+        }
+
+        if (zona[i].so2 > LIMITE_SO2) {
+            printf("   Alerta: Nivel de SO2 peligroso (%.2f ug/m3)\n", zona[i].so2);
+            alerta = 1;
+        }
+
+        if (zona[i].no2 > LIMITE_NO2) {
+            printf("    Alerta: Nivel de NO2 peligroso (%.2f ug/m3)\n", zona[i].no2);
+            alerta = 1;
+        }
+
+        if (zona[i].pm25 > LIMITE_PM25) {
+            printf("    Alerta: Nivel de PM2.5 peligroso (%.2f ug/m3)\n", zona[i].pm25);
+            alerta = 1;
+        }
+
+        if (!alerta) {
+            printf("   Todos los niveles están dentro de lo normal.\n");
+        }
+    }
+} 
+
+
+
+
+
 
