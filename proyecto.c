@@ -35,6 +35,8 @@ void modificarZona(struct Zona zona[], int contador);
 
 
 float predecir(float historico[30], int dias, float temperatura, float viento, float humedad);
+void guardarPredicciones(struct Zona zona[], int contador); // <-- AGREGAR ESTA LÍNEA
+void actualizarYVerPredicciones(struct Zona zona[], int contador) ;
 
 void verPredicciones(struct Zona zona[], int contador);
 void verDatosHistoricos(struct Zona zona[], int contador);
@@ -92,7 +94,8 @@ int main()
             break;
 
         case 2:
-verPredicciones(zona, contador);
+        guardarPredicciones(zona, contador);
+    actualizarYVerPredicciones(zona, contador);
             break;
         case 3:
             verDatosHistoricos(zona, contador);
@@ -188,7 +191,7 @@ void InicializarZonas(struct Zona zona[], int *contador)
     zona[2].viento = 15.0;
     zona[2].humedad = 60.0;
 
-    strcpy(zona[3].nombre, "Tulcán");
+    strcpy(zona[3].nombre, "Tulcan");
     strcpy(zona[3].pais, "Ecuador");
     strcpy(zona[3].ubicacion, "Ubicacion 4");
 
@@ -290,7 +293,7 @@ void agregarZona(struct Zona zona[], int *contador)
     printf("PM2.5 (ug/m3): ");
     scanf("%f", &zona[*contador].pm25);
 
-    printf("Ingrese las condiciones climáticas:\n");
+    printf("Ingrese las condiciones climaticas:\n");
     printf("Temperatura (C): ");
     scanf("%f", &zona[*contador].temperatura);
     printf("Viento (km/h): ");
@@ -353,11 +356,11 @@ void modificarZona(struct Zona zona[], int contador) {
     for (i = 0; i < contador; i++) {
         printf("%d) %s, %s, %s\n", i + 1, zona[i].nombre, zona[i].pais, zona[i].ubicacion);
     }
-    printf("Seleccione el número de la zona a modificar (1-%d): ", contador);
+    printf("Seleccione el numero de la zona a modificar (1-%d): ", contador);
     scanf("%d", &opcion);
 
     if (opcion < 1 || opcion > contador) {
-        printf("Opción inválida.\n");
+        printf("Opcion invalida.\n");
         return;
     }
     i = opcion - 1;
@@ -366,19 +369,19 @@ void modificarZona(struct Zona zona[], int contador) {
 
     printf("Nuevo nombre (actual: %s): ", zona[i].nombre);
     scanf("%s", zona[i].nombre);
-    printf("Nuevo país (actual: %s): ", zona[i].pais);
+    printf("Nuevo pais (actual: %s): ", zona[i].pais);
     scanf("%s", zona[i].pais);
-    printf("Nueva ubicación (actual: %s): ", zona[i].ubicacion);
+    printf("Nueva ubicaciin (actual: %s): ", zona[i].ubicacion);
     scanf("%s", zona[i].ubicacion);
 
     printf("Nuevos niveles de contaminantes:\n");
     printf("CO2 (ppm) (actual: %.2f): ", zona[i].co2);
     scanf("%f", &zona[i].co2);
-    printf("SO2 (µg/m³) (actual: %.2f): ", zona[i].so2);
+    printf("SO2 (ug/m3) (actual: %.2f): ", zona[i].so2);
     scanf("%f", &zona[i].so2);
-    printf("NO2 (µg/m³) (actual: %.2f): ", zona[i].no2);
+    printf("NO2 (ug/m3) (actual: %.2f): ", zona[i].no2);
     scanf("%f", &zona[i].no2);
-    printf("PM2.5 (µg/m³) (actual: %.2f): ", zona[i].pm25);
+    printf("PM2.5 (ug/m3) (actual: %.2f): ", zona[i].pm25);
     scanf("%f", &zona[i].pm25);
 
     printf("Nuevas condiciones climáticas:\n");
@@ -394,9 +397,11 @@ void modificarZona(struct Zona zona[], int contador) {
 }
 
 
-void verPredicciones(struct Zona zona[], int contador) {
+/*void verPredicciones(struct Zona zona[], int contador) {
     char buscar[50];
     int encontrada = 0;
+
+
 
     printf("Ingrese el nombre de la zona para ver las predicciones: ");
     scanf("%s", buscar);
@@ -407,19 +412,19 @@ void verPredicciones(struct Zona zona[], int contador) {
             printf("Pais: %s\n", zona[i].pais);
             printf("Ubicacion: %s\n", zona[i].ubicacion);
 
-            printf("\n--- Predicción para 1 día ---\n");
+            printf("\n--- Prediccion para 1 dia ---\n");
             printf("CO2: %.2f ppm\n", predecir(zona[i].historicoCO2, 1, zona[i].temperatura, zona[i].viento, zona[i].humedad));
             printf("SO2: %.2f ug/m3\n", predecir(zona[i].historicoSO2, 1, zona[i].temperatura, zona[i].viento, zona[i].humedad));
             printf("NO2: %.2f ug/m3\n", predecir(zona[i].historicoNO2, 1, zona[i].temperatura, zona[i].viento, zona[i].humedad));
             printf("PM2.5: %.2f ug/m3\n", predecir(zona[i].historicoPM25, 1, zona[i].temperatura, zona[i].viento, zona[i].humedad));
 
-            printf("\n--- Predicción para 1 semana ---\n");
+            printf("\n--- Prediccion para 1 semana ---\n");
             printf("CO2: %.2f ppm\n", predecir(zona[i].historicoCO2, 7, zona[i].temperatura, zona[i].viento, zona[i].humedad));
             printf("SO2: %.2f ug/m3\n", predecir(zona[i].historicoSO2, 7, zona[i].temperatura, zona[i].viento, zona[i].humedad));
             printf("NO2: %.2f ug/m3\n", predecir(zona[i].historicoNO2, 7, zona[i].temperatura, zona[i].viento, zona[i].humedad));
             printf("PM2.5: %.2f ug/m3\n", predecir(zona[i].historicoPM25, 7, zona[i].temperatura, zona[i].viento, zona[i].humedad));
 
-            printf("\n--- Predicción para 1 mes ---\n");
+            printf("\n--- Prediccion para 1 mes ---\n");
             printf("CO2: %.2f ppm\n", predecir(zona[i].historicoCO2, 30, zona[i].temperatura, zona[i].viento, zona[i].humedad));
             printf("SO2: %.2f ug/m3\n", predecir(zona[i].historicoSO2, 30, zona[i].temperatura, zona[i].viento, zona[i].humedad));
             printf("NO2: %.2f ug/m3\n", predecir(zona[i].historicoNO2, 30, zona[i].temperatura, zona[i].viento, zona[i].humedad));
@@ -432,7 +437,7 @@ void verPredicciones(struct Zona zona[], int contador) {
     if (!encontrada) {
         printf("Zona no encontrada.\n");
     }
-}
+}*/
 
 float predecir(float historico[30], int dias, float temperatura, float viento, float humedad) {
     if (dias > 30) dias = 30;
@@ -465,7 +470,7 @@ for (int i = 0; i < contador; i++)
         printf("Pais: %s\n", zona[i].pais);
         printf("Ubicacion: %s\n", zona[i].ubicacion);
 
-        printf("\n--- Datos Históricos ---\n");
+        printf("\n--- Datos Historicos ---\n");
         printf("******CO2 (ppm)*******: ");
         for (int j = 0; j < 30; j++) {
             printf("\nDia %d) %.2f ",j,zona[i].historicoCO2[j]);
@@ -529,13 +534,96 @@ void verAlertas(struct Zona zona[], int contador) {
         }
 
         if (!alerta) {
-            printf("   Todos los niveles están dentro de lo normal.\n");
+            printf("   Todos los niveles estan dentro de lo normal.\n");
         }
     }
 } 
 
 
 
+void guardarPredicciones(struct Zona zona[], int contador) {
+    FILE *archivo = fopen("predicciones.dat", "wb"); // sobrescribe
+    if (archivo == NULL) {
+        printf("Error al abrir el archivo para guardar predicciones.\n");
+        return;
+    }
+
+    for (int i = 0; i < contador; i++) {
+        // 1 día
+        float predCO2_d1 = predecir(zona[i].historicoCO2, 1, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+        float predSO2_d1 = predecir(zona[i].historicoSO2, 1, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+        float predNO2_d1 = predecir(zona[i].historicoNO2, 1, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+        float predPM25_d1 = predecir(zona[i].historicoPM25, 1, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+
+        // 1 semana
+        float predCO2_7 = predecir(zona[i].historicoCO2, 7, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+        float predSO2_7 = predecir(zona[i].historicoSO2, 7, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+        float predNO2_7 = predecir(zona[i].historicoNO2, 7, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+        float predPM25_7 = predecir(zona[i].historicoPM25, 7, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+
+        // 1 mes
+        float predCO2_30 = predecir(zona[i].historicoCO2, 30, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+        float predSO2_30 = predecir(zona[i].historicoSO2, 30, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+        float predNO2_30 = predecir(zona[i].historicoNO2, 30, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+        float predPM25_30 = predecir(zona[i].historicoPM25, 30, zona[i].temperatura, zona[i].viento, zona[i].humedad);
+
+        fwrite(zona[i].nombre, sizeof(char), 50, archivo);
+        fwrite(&predCO2_d1, sizeof(float), 1, archivo);
+        fwrite(&predSO2_d1, sizeof(float), 1, archivo);
+        fwrite(&predNO2_d1, sizeof(float), 1, archivo);
+        fwrite(&predPM25_d1, sizeof(float), 1, archivo);
+
+        fwrite(&predCO2_7, sizeof(float), 1, archivo);
+        fwrite(&predSO2_7, sizeof(float), 1, archivo);
+        fwrite(&predNO2_7, sizeof(float), 1, archivo);
+        fwrite(&predPM25_7, sizeof(float), 1, archivo);
+
+        fwrite(&predCO2_30, sizeof(float), 1, archivo);
+        fwrite(&predSO2_30, sizeof(float), 1, archivo);
+        fwrite(&predNO2_30, sizeof(float), 1, archivo);
+        fwrite(&predPM25_30, sizeof(float), 1, archivo);
+    }
+
+    fclose(archivo);
+   
+}
 
 
 
+
+void actualizarYVerPredicciones(struct Zona zona[], int contador) {
+    char buscar[50];
+    int encontrada = 0;
+
+    printf("Ingrese el nombre de la zona para ver las predicciones guardadas: ");
+    scanf("%s", buscar);
+
+    FILE *archivo = fopen("predicciones.dat", "rb");
+    if (archivo == NULL) {
+        printf("No se pudo abrir el archivo de predicciones.\n");
+        return;
+    }
+
+    char nombre[50];
+    float pred[12];
+
+    while (fread(nombre, sizeof(char), 50, archivo) == 50 &&
+           fread(pred, sizeof(float), 12, archivo) == 12)
+    {
+        if (strcmp(nombre, buscar) == 0) {
+            printf("\n--- PREDICCIONES PARA: %s ---\n", nombre);
+            printf("%-10s %-10s %-10s %-10s %-10s\n", "Periodo", "CO2", "SO2", "NO2", "PM2.5");
+            printf("%-10s %-10.2f %-10.2f %-10.2f %-10.2f\n", "1 dia", pred[0], pred[1], pred[2], pred[3]);
+            printf("%-10s %-10.2f %-10.2f %-10.2f %-10.2f\n", "1 semana", pred[4], pred[5], pred[6], pred[7]);
+            printf("%-10s %-10.2f %-10.2f %-10.2f %-10.2f\n", "1 mes", pred[8], pred[9], pred[10], pred[11]);
+            encontrada = 1;
+            break;
+        }
+    }
+
+    if (!encontrada) {
+        printf("Zona '%s' no encontrada en el archivo de predicciones.\n", buscar);
+    }
+
+    fclose(archivo);
+}
