@@ -42,3 +42,6 @@ void actualizarYVerPredicciones(struct Zona zona[], int contador);
 void verDatosHistoricos(struct Zona zona[], int contador);
 void verAlertas(struct Zona zona[], int contador);
 void verRecomendaciones(struct Zona zona[], int contador);
+void generarReporteZona(struct Zona *z);
+void generarReporteZonaTXT(struct Zona *z);
+

@@ -7,7 +7,7 @@
 #define LIMITE_NO2     25.0f   // ug/m3
 #define LIMITE_PM25    15.0f   // ug/m3
 
-
+void generarReporteInteractivo(struct Zona zona[], int contador); 
 
 
 int main() {
@@ -63,9 +63,15 @@ int main() {
                     verRecomendaciones(zona, contador);
 
                 break;
+
             case 6:
-                seguir = 0;
+               
+generarReporteInteractivo(zona, contador);
+
+                break;
+            case 7:
                 printf("Saliendo del programa...\n");
+                seguir = 0;
                 break;
             default:
                 printf("Opcion no valida.\n");

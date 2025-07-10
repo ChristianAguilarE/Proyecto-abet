@@ -17,7 +17,8 @@ int menu() {
     printf("3) Ver datos historicos\n");
     printf("4) Alertas\n");
     printf("5) Recomendaciones\n");
-    printf("6) Salir\n");
+    printf("6) Ver REPORTES\n");
+    printf("7) Salir\n");
     printf("Seleccione una opcion: ");
     scanf("%d", &opcion);
     return opcion;
@@ -400,4 +401,100 @@ void verRecomendaciones(struct Zona zona[], int contador) {
         }
     }
     printf("Zona '%s' no encontrada\n", buscar);
+}
+
+
+
+void generarReporteInteractivo(struct Zona zonas[], int contador) {
+    int disponibles = 0;
+
+    printf("\nZonas con datos actuales disponibles:\n");
+    for (int i = 0; i < contador; i++) {
+        if (zonas[i].co2 > 0 || zonas[i].so2 > 0 || zonas[i].no2 > 0 || zonas[i].pm25 > 0) {
+            printf("- %s\n", zonas[i].nombre);
+            disponibles++;
+        }
+    }
+
+    if (disponibles == 0) {
+        printf("No hay zonas con datos actuales para generar reporte.\n");
+        return;
+    }
+
+    char nombre[50];
+    printf("\nIngrese el nombre exacto de gla zona para generar el reporte: ");
+    scanf("%s", nombre);
+
+    for (int i = 0; i < contador; i++) {
+        if (strcmp(zonas[i].nombre, nombre) == 0) {
+            if (zonas[i].co2 == 0 && zonas[i].so2 == 0 && zonas[i].no2 == 0 && zonas[i].pm25 == 0) {
+                printf("Esa zona no tiene datos actuales suficientes.\n");
+                return;
+            }
+            generarReporteZonaTXT(&zonas[i]);
+
+            return;
+        }
+    }
+
+    printf("Zona no encontrada.\n");
+}
+void generarReporteZonaTXT(struct Zona *z) {
+    char fileName[64];
+    snprintf(fileName, sizeof(fileName), "reporte_%s.txt", z->nombre);
+
+    FILE *f = fopen(fileName, "w");
+    if (!f) {
+        printf("Error al crear el archivo %s\n", fileName);
+        return;
+    }
+
+    fprintf(f, "===== REPORTE DE ZONA =====\n");
+    fprintf(f, "Nombre: %s\n", z->nombre);
+    fprintf(f, "Pais: %s\n", z->pais);
+    fprintf(f, "Ubicacion: %s\n\n", z->ubicacion);
+
+    fprintf(f, "--- Niveles actuales de contaminantes ---\n");
+    fprintf(f, "CO2: %.2f ppm\n", z->co2);
+    fprintf(f, "SO2: %.2f ug/m3\n", z->so2);
+    fprintf(f, "NO2: %.2f ug/m3\n", z->no2);
+    fprintf(f, "PM2.5: %.2f ug/m3\n\n", z->pm25);
+
+    fprintf(f, "--- Condiciones climaticas ---\n");
+    fprintf(f, "Temperatura: %.2f C\n", z->temperatura);
+    fprintf(f, "Viento: %.2f km/h\n", z->viento);
+    fprintf(f, "Humedad: %.2f %%\n\n", z->humedad);
+
+    fprintf(f, "--- Predicciones ---\n");
+
+    float predDia[4], predSemana[4];
+    predDia[0] = predecir5(z->historicoCO2, z->co2, z->temperatura, z->viento, z->humedad, 0.1f);
+    predDia[1] = predecir5(z->historicoSO2, z->so2, z->temperatura, z->viento, z->humedad, 0.5f);
+    predDia[2] = predecir5(z->historicoNO2, z->no2, z->temperatura, z->viento, z->humedad, 0.4f);
+    predDia[3] = predecir5(z->historicoPM25, z->pm25, z->temperatura, z->viento, z->humedad, 0.8f);
+
+    for (int i = 0; i < 4; i++) predSemana[i] = predDia[i];
+
+    fprintf(f, "Prediccion a 1 dia:\n");
+    fprintf(f, "CO2: %.2f ppm\n", predDia[0]);
+    fprintf(f, "SO2: %.2f ug/m3\n", predDia[1]);
+    fprintf(f, "NO2: %.2f ug/m3\n", predDia[2]);
+    fprintf(f, "PM2.5: %.2f ug/m3\n\n", predDia[3]);
+
+    fprintf(f, "Prediccion a 1 semana:\n");
+    fprintf(f, "CO2: %.2f ppm\n", predSemana[0]);
+    fprintf(f, "SO2: %.2f ug/m3\n", predSemana[1]);
+    fprintf(f, "NO2: %.2f ug/m3\n", predSemana[2]);
+    fprintf(f, "PM2.5: %.2f ug/m3\n\n", predSemana[3]);
+
+    fprintf(f, "--- Alertas ---\n");
+    if (z->co2 > LIMITE_CO2) fprintf(f, "- CO2 alto\n");
+    if (z->so2 > LIMITE_SO2) fprintf(f, "- SO2 alto\n");
+    if (z->no2 > LIMITE_NO2) fprintf(f, "- NO2 alto\n");
+    if (z->pm25 > LIMITE_PM25) fprintf(f, "- PM2.5 alto\n");
+    if (z->co2 <= LIMITE_CO2 && z->so2 <= LIMITE_SO2 && z->no2 <= LIMITE_NO2 && z->pm25 <= LIMITE_PM25)
+        fprintf(f, "Todos los niveles estan dentro de limites normales.\n");
+
+    fclose(f);
+    printf("Reporte TXT generado: %s\n", fileName);
 }
