@@ -176,28 +176,27 @@ int cargarHistoricoZona(struct Zona *z) {
 }
 
 float predecir5(float historico[30], float hoy, float temperatura, float viento, float humedad, float coef) {
-    int dias = 7;
-    float sumaP = 0.0f;
-    float sumaPesos = 0.0f;
-    int inicio = 30 - dias;
-    for (int i = 0; i < dias; i++) {
-        float valor;
-        if (i < dias-1) {
-            valor = historico[inicio + i];
-        } else {
-            valor = hoy;
-        }
-        int peso = i+1;
-        sumaP += valor * peso;
-        sumaPesos += peso;
-    }
-    float promedio = sumaP / sumaPesos;
-    float ajuste = promedio;
-    if (temperatura > 20.0f) ajuste += promedio * 0.005f * (temperatura - 20.0f);
-    if (viento > 10.0f)     ajuste -= promedio * 0.01f  * ((viento - 10.0f) / 5.0f);
-    if (humedad > 50.0f)    ajuste -= promedio * 0.002f * ((humedad - 50.0f) / 5.0f);
-    return ajuste * coef;
+    // Pesos fijos que suman 100%
+    float pesos[7] = {0.35f, 0.25f, 0.15f, 0.10f, 0.07f, 0.05f, 0.03f};
+
+    float pred = 0.0f;
+
+    pred += hoy * pesos[0];                // Día actual
+    pred += historico[29] * pesos[1];      // Día -1
+    pred += historico[28] * pesos[2];      // Día -2
+    pred += historico[27] * pesos[3];      // Día -3
+    pred += historico[26] * pesos[4];      // Día -4
+    pred += historico[25] * pesos[5];      // Día -5
+    pred += historico[24] * pesos[6];      // Día -6
+
+    // Ajuste climático
+    if (temperatura > 20.0f) pred += pred * 0.005f * (temperatura - 20.0f);
+    if (viento > 10.0f)     pred -= pred * 0.01f  * ((viento - 10.0f) / 5.0f);
+    if (humedad > 50.0f)    pred -= pred * 0.002f * ((humedad - 50.0f) / 5.0f);
+
+    return pred * coef;
 }
+
 
 void guardarPredicciones(struct Zona zona[], int contador) {
     FILE *archivo = fopen("predicciones.dat", "wb");
