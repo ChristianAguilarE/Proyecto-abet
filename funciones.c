@@ -71,31 +71,77 @@ void agregarZona(struct Zona zona[], int *contador) {
         printf("No se pueden agregar mas zonas.\n");
         return;
     }
+
+    // Datos de texto
     printf("Ingrese el nombre de la zona: ");
     scanf("%s", zona[*contador].nombre);
+    while (getchar() != '\n');
+
     printf("Ingrese el pais: ");
     scanf("%s", zona[*contador].pais);
+    while (getchar() != '\n');
+
     printf("Ingrese la ubicacion: ");
     scanf("%s", zona[*contador].ubicacion);
+    while (getchar() != '\n');
 
     if (cargarHistoricoZona(&zona[*contador])) {
         printf("Historicos cargados de %s.txt\n", zona[*contador].nombre);
     }
 
+    // Niveles de contaminantes
     printf("Ingrese niveles actuales de contaminantes:\n");
-    printf("CO2 (ppm): ");    scanf("%f", &zona[*contador].co2);
-    printf("SO2 (ug/m3): "); scanf("%f", &zona[*contador].so2);
-    printf("NO2 (ug/m3): "); scanf("%f", &zona[*contador].no2);
-    printf("PM25 (ug/m3): ");scanf("%f", &zona[*contador].pm25);
 
+    printf("CO2 (ppm): ");
+    while (scanf("%f", &zona[*contador].co2) != 1) {
+        printf("Entrada invalida. Ingrese un numero valido para CO2 (ppm): ");
+        while (getchar() != '\n');
+    }
+
+    printf("SO2 (ug/m3): ");
+    while (scanf("%f", &zona[*contador].so2) != 1) {
+        printf("Entrada invalida. Ingrese un numero valido para SO2 (ug/m3): ");
+        while (getchar() != '\n');
+    }
+
+    printf("NO2 (ug/m3): ");
+    while (scanf("%f", &zona[*contador].no2) != 1) {
+        printf("Entrada invalida. Ingrese un numero valido para NO2 (ug/m3): ");
+        while (getchar() != '\n');
+    }
+
+    printf("PM25 (ug/m3): ");
+    while (scanf("%f", &zona[*contador].pm25) != 1) {
+        printf("Entrada invalida. Ingrese un numero valido para PM25 (ug/m3): ");
+        while (getchar() != '\n');
+    }
+
+    // Condiciones climaticas
     printf("Ingrese condiciones climaticas:\n");
-    printf("Temperatura (C): "); scanf("%f", &zona[*contador].temperatura);
-    printf("Viento (km/h): ");    scanf("%f", &zona[*contador].viento);
-    printf("Humedad (%%): ");     scanf("%f", &zona[*contador].humedad);
+
+    printf("Temperatura (C): ");
+    while (scanf("%f", &zona[*contador].temperatura) != 1) {
+        printf("Entrada invalida. Ingrese un numero valido para temperatura (C): ");
+        while (getchar() != '\n');
+    }
+
+    printf("Viento (km/h): ");
+    while (scanf("%f", &zona[*contador].viento) != 1) {
+        printf("Entrada invalida. Ingrese un numero valido para viento (km/h): ");
+        while (getchar() != '\n');
+    }
+
+    printf("Humedad (%%): ");
+    while (scanf("%f", &zona[*contador].humedad) != 1) {
+        printf("Entrada invalida. Ingrese un numero valido para humedad: ");
+        while (getchar() != '\n');
+    }
 
     (*contador)++;
     guardarZonas(zona, *contador);
+    printf("Zona agregada correctamente.\n");
 }
+
 
 void verZonas(struct Zona zona[], int contador) {
     printf("\n%-4s %-15s %-12s %-15s %-8s %-8s %-8s %-10s %-12s %-10s %-10s\n",
